@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8"> 
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script> 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Football</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Players</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link " href="#">Teams</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="#">Leagues</a>
+            </li>
+            </ul>
+            
+            <input class="form-control mr-sm-2 input" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0 submit" >Search</button>
+            </form>
+        </div>
+    </nav>
+
+
+    <script>
+        
+        d3.select(".submit")
+            .on("click", function(){
+                var player;
+                var playerAttr;
+                //console.log(d3.select(".input").node().value);
+                d3.csv("../files/Players.csv", function(players) {
+                    console.log(d3.select(".input").node().value);
+                    for(let i = 0; i < players.length; i++){
+                        if (players[i].player_name.trim() == d3.select(".input").node().value.trim()){
+                            player = players[i];
+                        }
+                    }
+                })
+
+                d3.csv("../files/Player_Attributes.csv", function(players) {
+                    //&& players[i].date.split("-")[0].trim() == "2015"
+                    for(let i = 0; i < players.length; i++){
+                        if (players[i].player_api_id == player.player_api_id ){
+                            if (playerAttr != undefined){
+                                if (parseInt(players[i].date.split("-")[0]) > parseInt(playerAttr.date.split("-")[0])){
+                                    playerAttr = players[i];
+                                }
+                            }
+                            else{
+                                playerAttr = players[i];
+                            }
+                            
+            
+                            
+                        }
+                    }
+                    console.log(playerAttr);
+                })
+            })
+        
+    </script>
+
+
+</body>
+
+
+
+</html>
