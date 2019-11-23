@@ -2,8 +2,44 @@
 
 <head>
     <meta charset="utf-8"> 
-    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script> 
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="../scripts/d3.startPlot.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    <style>
+
+        
+        #target {
+        margin: 40px 0;
+        }
+        .chart {
+        margin-bottom: 40px;
+        }
+        .star-title {
+        font-size: 14px;
+        }
+        .star-label {
+        font-size: 11px;
+        }
+        .star-origin {
+        fill: #333;
+        }
+        .star-axis {
+        stroke: #ccc;
+        stroke-width: 2px;
+        stroke-dasharray: 4 5;
+        }
+        .star-path {
+        stroke: #444;
+        stroke-width: 2px;
+        fill: #709CB1;
+        fill-opacity: 0.6;
+        }
+    
+        .fa-star {
+            color : #EEBD01;
+        }
+    </style>
 
 </head>
 
@@ -39,10 +75,40 @@
     </nav>
 
 
+        <div class = "title px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center"></div>
+
+        <div class = "container">
+
+            <div class = "attr">
+                <div class = "row">
+                    <div class = "col-md-4"></div>
+                    <ul class="list-group list-group-flush lista col-md-4" ></ul>
+                    <div class = "col-md-4 data"></div>
+                    
+                </div>
+            </div>
+
+            
+        </div>
+
     <script>
+
+        function add_rows(classname, attr_name, attr_value){
+            d3.select("." + classname)
+                .append("li")
+                .attr("class", "list-group-item")
+                .text(attr_name + "   :   " + attr_value);
+        }
+
+        function delete_all(){
+            d3.select(".title").html("");
+            d3.select(".lista").html("");
+            d3.select(".data").html("");
+        }
         
         d3.select(".submit")
             .on("click", function(){
+                delete_all()
                 var player;
                 var playerAttr;
                 //console.log(d3.select(".input").node().value);
@@ -66,14 +132,89 @@
                             }
                             else{
                                 playerAttr = players[i];
-                            }
-                            
-            
-                            
+                            }   
                         }
                     }
+                    
+                    d3.select(".title")
+                        .append("h6")
+                        .attr("class", "display-4")
+                        .text(player.player_name + " - " + playerAttr.overall_rating);
+                    
+                    if (parseInt(playerAttr.overall_rating) > 90){
+                        for (let i = 0; i < 5; i++){
+                            d3.select(".title")
+                                .append("i")
+                                .attr("class", "fa fa-star");
+                        }
+                    }
+
+                    add_rows("lista", "Birthday", player.birthday.trim().split(" ")[0]);
+                    add_rows("lista", "Height", player.height);
+                    add_rows("lista", "Weight", +player.weight);
+                    add_rows("lista", "Preferred Foot", playerAttr.preferred_foot);
+
                     console.log(playerAttr);
+                    var mapping = {
+                        "high" : 3, 
+                        "medium" : 2,
+                        "low" : 1
+                    };
+
+                    var data = {
+                        attack : mapping[playerAttr.attacking_work_rate.trim()],
+                        defense : mapping[playerAttr.defensive_work_rate.trim()],
+                        goal_keeper : parseInt(playerAttr.gk_diving) < 20 ? 0 : 3,
+                        miedfield : (mapping[playerAttr.attacking_work_rate.trim()] != 3 &&  mapping[playerAttr.defensive_work_rate.trim()] != 3 && parseInt(playerAttr.gk_diving) < 20) ? 3 : 1,
+                    };
+
+                    var scale = d3.scale.linear()
+                        .domain([0, 3])
+                        .range([0, 100])
+                    
+                    var margin = {
+                        top: 36,
+                        right: 50,
+                        bottom: 20,
+                        left: 50
+                        };
+                    var width = 240 - margin.left - margin.right;
+                    var height = 240 - margin.top - margin.bottom;
+                    var labelMargin = 8;
+
+
+                    var star = d3.starPlot()
+                        .width(width)
+                        .accessors([
+                            
+                            function(d) { return scale(d.attack) },
+                            function(d) { return scale(d.defense) },
+                            function(d) { return scale(d.goal_keeper) },
+                            function(d) { return scale(d.miedfield) },
+                            
+                        ])
+                        .labels([
+                            'attack',
+                            'defence',
+                            'goal keeper',
+                            'miedfield',
+                            
+                        ])
+                        .title(function() { return player.player_name + " skills"; })
+                        .margin(margin)
+                        .labelMargin(labelMargin);
+
+                    d3.select('.data').append("svg").attr("class", "float-right chart")
+                        .attr('width', width + margin.left + margin.right)
+                        .attr('height', width + margin.top + margin.bottom)
+                        .append('g')
+                        .datum(data)
+                        .call(star)
+
+
+                    
                 })
+
             })
         
     </script>
