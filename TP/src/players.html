@@ -90,6 +90,7 @@
 
             
         </div>
+        
 
     <script>
 
@@ -104,6 +105,62 @@
             d3.select(".title").html("");
             d3.select(".lista").html("");
             d3.select(".data").html("");
+            d3.select(".card").remove();
+        }
+
+        function add_row(name, class_name,  attr_name, attr_value){
+            d3.select("." + name)
+                .append("tr")
+                .attr("class", class_name)
+                .append("td")
+                .text(attr_name + " : ")
+                .append("strong")
+                .text(attr_value);
+
+            return class_name;
+        }
+
+        function add_elem(table_name,  attr_name, attr_value){
+            
+                d3.select("." + table_name)
+                    .append("td")
+                    .text(attr_name + " : ")
+                    .append("strong")
+                    .text(attr_value);
+            
+            
+        }
+
+        function create_card(class_name){
+            
+            d3.select("body")
+                .append("div")
+                .attr("class", "card")
+                .style("width", "100%")
+                .append("div")
+                .attr("class", "card-body " + class_name)
+            
+            return class_name
+        }
+
+        function create_table(card_name, table_class_name, first_row_class_name,  title){
+            d3.select("." + card_name)
+                .append("h3")
+                .attr("class", "card-title align-self-center justify-content-center row")
+                .append("strong")
+                .text(title);
+
+            d3.select(".card-body")
+                .append("table")
+                .attr("class", "table")
+            	.append("tbody")
+                .attr("class", table_class_name)
+                .append("tr")
+                .attr("class", first_row_class_name);
+
+
+            return [table_class_name, first_row_class_name];
+                
         }
         
         d3.select(".submit")
@@ -141,12 +198,33 @@
                         .attr("class", "display-4")
                         .text(player.player_name + " - " + playerAttr.overall_rating);
                     
+                    
+                    for (let i = 0; i < 3; i++){
+                        d3.select(".title")
+                            .append("i")
+                            .attr("class", "fa fa-star");
+                    }
+
+                    if (parseInt(playerAttr.overall_rating) > 75){
+                        d3.select(".title")
+                            .append("i")
+                            .attr("class", "fa fa-star");
+
+                    }
+                    else{
+                        d3.select(".title")
+                            .append("i")
+                            .attr("class", "fa fa-star-o");
+                    }
                     if (parseInt(playerAttr.overall_rating) > 90){
-                        for (let i = 0; i < 5; i++){
-                            d3.select(".title")
+                        d3.select(".title")
                                 .append("i")
                                 .attr("class", "fa fa-star");
-                        }
+                    }
+                    else{
+                        d3.select(".title")
+                                .append("i")
+                                .attr("class", "fa fa-star-o");
                     }
 
                     add_rows("lista", "Birthday", player.birthday.trim().split(" ")[0]);
@@ -165,7 +243,7 @@
                         attack : mapping[playerAttr.attacking_work_rate.trim()],
                         defense : mapping[playerAttr.defensive_work_rate.trim()],
                         goal_keeper : parseInt(playerAttr.gk_diving) < 20 ? 0 : 3,
-                        miedfield : (mapping[playerAttr.attacking_work_rate.trim()] != 3 &&  mapping[playerAttr.defensive_work_rate.trim()] != 3 && parseInt(playerAttr.gk_diving) < 20) ? 3 : 1,
+                        miedfield : (mapping[playerAttr.attacking_work_rate.trim()] != 3 &&  mapping[playerAttr.defensive_work_rate.trim()] != 3 && parseInt(playerAttr.gk_diving) < 20) ? 3 : 2,
                     };
 
                     var scale = d3.scale.linear()
@@ -209,7 +287,29 @@
                         .attr('height', width + margin.top + margin.bottom)
                         .append('g')
                         .datum(data)
-                        .call(star)
+                        .call(star);
+                    
+                    
+                    let class_name = create_card("attack");
+                    let array = create_table(class_name, "attack_list", "row0",  "Stats");
+                    let table_class_name = array[0];
+                    let row_class_name = array[1];
+                    let i = 0
+                    for (let key in playerAttr){
+                        if(playerAttr.hasOwnProperty(key)){
+                            if (key != "id" && key != "player_fifa_api_id" && key != "player_api_id" && key != "date" && key != "overall_rating" && key != "potential" && key != "preferred_foot" && key != "attacking_work_rate" && key != "defensive_work_rate" && key != "marking"){
+                    
+                                if (i++ % 8 == 0){
+                                    row_class_name = add_row(table_class_name, "row" + i, `${key}`,  `${playerAttr[key]}`);
+                                }
+                                else{
+                                    add_elem(row_class_name, `${key}`,  `${playerAttr[key]}`);
+                                }
+                                    
+                                
+                            }
+                        }
+                    }
 
 
                     
