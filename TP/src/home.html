@@ -38,10 +38,8 @@
         </div>
     </nav>
     <br/>
-    <div class = "container"></div>
 
 
-    <hr/>
     <div class = "scorers">
         <div class = "header">
             <div class = "row  ">
@@ -53,6 +51,8 @@
                 <div class = "col-md-4"></div>
             </div>
         </div>
+        <br/>
+        <br/>
         <div class = "graphic"></div>
     </div>
     
@@ -234,31 +234,16 @@
 
         
 
-        d3.select(".ligue").on("change", change);
         let scorers = [];
         let leagues = {
             "Bundesliga" : 7809,
             "SPANISH" : 21518,
 
         };
+        d3.select(".ligue").on("change", change);
         
-        d3.csv("../files/Games.csv", function(games) {
-
-            d3.select(".container")
-                .append("div")
-                .attr("class", "header")
-                .text(games[0].league_name)
-                .style("text-align", "center")
-                ;
-            for (let i = 0; i < games.length; i++){
-                d3.select(".container")
-                .append("p")
-                .text(games[i].home_team_name + "  " + games[i].home_team_goal + " - " + games[i].away_team_goal + "  " + games[i].away_team_name)
-                .style("text-align", "center");
-            }
-            
-        })
-
+        
+        
 
         
         
