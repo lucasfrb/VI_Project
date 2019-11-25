@@ -2,6 +2,8 @@
 
 <head>
     <meta charset="utf-8"> 
+    
+    
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="../scripts/d3.startPlot.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -88,11 +90,24 @@
                 </div>
             </div>
 
+            <ul class="pagination">
+                <li class="page-item Previous d-none"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item Next d-none"><a class="page-link" href="#">Next</a></li>
+            </ul> 
+            <div class = "mytable">
+                
+
+            </div>
+
             
         </div>
         
 
     <script>
+        let index = 0;
+        let lista = [];
+            
+            
 
         function add_rows(classname, attr_name, attr_value){
             d3.select("." + classname)
@@ -108,60 +123,49 @@
             d3.select(".card").remove();
         }
 
-        function add_row(name, class_name,  attr_name, attr_value){
-            d3.select("." + name)
-                .append("tr")
-                .attr("class", class_name)
-                .append("td")
-                .text(attr_name + " : ")
-                .append("strong")
-                .text(attr_value);
-
-            return class_name;
-        }
-
-        function add_elem(table_name,  attr_name, attr_value){
-            
-                d3.select("." + table_name)
-                    .append("td")
-                    .text(attr_name + " : ")
-                    .append("strong")
-                    .text(attr_value);
-            
-            
-        }
-
-        function create_card(class_name){
-            
-            d3.select("body")
-                .append("div")
-                .attr("class", "card")
-                .style("width", "100%")
-                .append("div")
-                .attr("class", "card-body " + class_name)
-            
-            return class_name
-        }
-
-        function create_table(card_name, table_class_name, first_row_class_name,  title){
-            d3.select("." + card_name)
-                .append("h3")
-                .attr("class", "card-title align-self-center justify-content-center row")
-                .append("strong")
-                .text(title);
-
-            d3.select(".card-body")
+        
+        function create_table(playerAttr){
+            d3.select(".mytable").html("");
+            d3.select(".mytable")
                 .append("table")
                 .attr("class", "table")
-            	.append("tbody")
-                .attr("class", table_class_name)
-                .append("tr")
-                .attr("class", first_row_class_name);
-
-
-            return [table_class_name, first_row_class_name];
+                .append("tbody")
                 
+            let slice_size = Math.round(lista.length / 4);
+            for(let i = 0; i < lista.length; i++){
+                if (i < slice_size){
+                    lista[i].page = 0;
+                }
+                else if(i >= slice_size && i < slice_size * 2){
+                    lista[i].page = 1;
+                }
+                else if(i >= slice_size * 2 && i < slice_size * 3){
+                    lista[i].page = 2;
+                }
+                else{
+                    lista[i].page = 3;
+                }
+            }
+
+            for (let i = 0; i < lista.length; i++){
+                if (lista[i].page == index){
+                    d3.select("tbody")
+                        .append("tr")
+                        .attr("class", "class" + i)
+                        .append("td")
+                        .text(lista[i].name);
+                    d3.select(".class" + i)
+                        .append("td")
+                        .append("strong")
+                        .text(lista[i].attr);
+                    
+                }
+            }            
+
+            
         }
+
+
         
         d3.select(".submit")
             .on("click", function(){
@@ -227,12 +231,12 @@
                                 .attr("class", "fa fa-star-o");
                     }
 
+                    
                     add_rows("lista", "Birthday", player.birthday.trim().split(" ")[0]);
                     add_rows("lista", "Height", player.height);
-                    add_rows("lista", "Weight", +player.weight);
+                    add_rows("lista", "Weight", player.weight);
                     add_rows("lista", "Preferred Foot", playerAttr.preferred_foot);
-
-                    console.log(playerAttr);
+                    
                     var mapping = {
                         "high" : 3, 
                         "medium" : 2,
@@ -290,27 +294,30 @@
                         .call(star);
                     
                     
-                    let class_name = create_card("attack");
-                    let array = create_table(class_name, "attack_list", "row0",  "Stats");
-                    let table_class_name = array[0];
-                    let row_class_name = array[1];
-                    let i = 0
                     for (let key in playerAttr){
                         if(playerAttr.hasOwnProperty(key)){
                             if (key != "id" && key != "player_fifa_api_id" && key != "player_api_id" && key != "date" && key != "overall_rating" && key != "potential" && key != "preferred_foot" && key != "attacking_work_rate" && key != "defensive_work_rate" && key != "marking"){
-                    
-                                if (i++ % 8 == 0){
-                                    row_class_name = add_row(table_class_name, "row" + i, `${key}`,  `${playerAttr[key]}`);
-                                }
-                                else{
-                                    add_elem(row_class_name, `${key}`,  `${playerAttr[key]}`);
-                                }
-                                    
+                                lista.push({name : `${key}`, attr : `${playerAttr[key]}`});
                                 
                             }
                         }
                     }
+                    create_table(playerAttr);
 
+                    d3.select(".Next").on("click", function(){
+                        index++;
+                        console.log(index)
+                        create_table(playerAttr);
+                    });
+
+                    d3.select(".Previous").on("click", function(){
+                        index--;
+                        console.log(index);
+                        create_table(playerAttr);
+                    });
+
+
+                    
 
                     
                 })
