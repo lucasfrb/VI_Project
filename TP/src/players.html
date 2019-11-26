@@ -10,7 +10,9 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
     <style>
 
-        
+        a{
+            cursor : pointer;
+        }
         #target {
         margin: 40px 0;
         }
@@ -91,8 +93,7 @@
             </div>
 
             <ul class="pagination">
-                <li class="page-item Previous d-none"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item Next d-none"><a class="page-link" href="#">Next</a></li>
+                
             </ul> 
             <div class = "mytable">
                 
@@ -169,6 +170,21 @@
         
         d3.select(".submit")
             .on("click", function(){
+
+                d3.select(".pagination")
+                    .append("li")
+                    .attr("class", "page-item Previous" )
+                    .append("a")
+                    .attr("class", "page-link")
+                    .text("Previous");
+
+                d3.select(".pagination")
+                    .append("li")
+                    .attr("class", "page-item Next" )
+                    .append("a")
+                    .attr("class", "page-link")
+                    .text("Next");
+
                 delete_all()
                 var player;
                 var playerAttr;
