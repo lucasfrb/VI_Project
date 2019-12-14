@@ -92,10 +92,7 @@
                 </div>
             </div>
 
-            <ul class="pagination">
-                
-            </ul> 
-            <div class = "mytable">
+            <div class = "graphic">
                 
 
             </div>
@@ -105,7 +102,6 @@
         
 
     <script>
-        let index = 0;
         let lista = [];
             
             
@@ -124,66 +120,74 @@
             d3.select(".card").remove();
         }
 
-        
-        function create_table(playerAttr){
-            d3.select(".mytable").html("");
-            d3.select(".mytable")
-                .append("table")
-                .attr("class", "table")
-                .append("tbody")
-                
-            let slice_size = Math.round(lista.length / 4);
-            for(let i = 0; i < lista.length; i++){
-                if (i < slice_size){
-                    lista[i].page = 0;
-                }
-                else if(i >= slice_size && i < slice_size * 2){
-                    lista[i].page = 1;
-                }
-                else if(i >= slice_size * 2 && i < slice_size * 3){
-                    lista[i].page = 2;
-                }
-                else{
-                    lista[i].page = 3;
-                }
-            }
+        function create_graphic(){
+            console.log(lista);
+            
+            var margin = {top: 50, right: 20, bottom: 200, left: 300},
+            width = 1200 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
 
-            for (let i = 0; i < lista.length; i++){
-                if (lista[i].page == index){
-                    d3.select("tbody")
-                        .append("tr")
-                        .attr("class", "class" + i)
-                        .append("td")
-                        .text(lista[i].name);
-                    d3.select(".class" + i)
-                        .append("td")
-                        .append("strong")
-                        .text(lista[i].attr);
-                    
-                }
-            }            
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+            var y = d3.scale.linear().range([height, 0]);
 
             
-        }
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                
+            
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .ticks(10);
 
+            var svg = d3.select(".graphic").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", 
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+            
+            let d_max = Math.max.apply(Math, lista.map(function(o) { return parseInt(o.attr.trim()); }))
+            x.domain(lista.map(function(d) { return d.name; }));
+            y.domain([0, d3.max(lista, function(d) { return (d_max) + 10; })]);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", "-.55em")
+                .attr("transform", "rotate(-90)" );
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "start")
+                .text("Score ");
+
+            svg.selectAll("bar")
+                .data(lista)
+                .enter().append("rect")
+                .attr("name", d => d.name)
+                .style("fill", "steelblue")
+                .attr("x", function(d) { return x(d.name); })
+                .attr("width", x.rangeBand())
+                .attr("y", function(d) { return y(d.attr); })
+                .attr("height", function(d) { return height - y(d.attr ); });
+        }
 
         
         d3.select(".submit")
             .on("click", function(){
-
-                d3.select(".pagination")
-                    .append("li")
-                    .attr("class", "page-item Previous" )
-                    .append("a")
-                    .attr("class", "page-link")
-                    .text("Previous");
-
-                d3.select(".pagination")
-                    .append("li")
-                    .attr("class", "page-item Next" )
-                    .append("a")
-                    .attr("class", "page-link")
-                    .text("Next");
 
                 delete_all()
                 var player;
@@ -318,19 +322,9 @@
                             }
                         }
                     }
-                    create_table(playerAttr);
+                    create_graphic();
 
-                    d3.select(".Next").on("click", function(){
-                        index++;
-                        console.log(index)
-                        create_table(playerAttr);
-                    });
-
-                    d3.select(".Previous").on("click", function(){
-                        index--;
-                        console.log(index);
-                        create_table(playerAttr);
-                    });
+                    
 
 
                     
