@@ -80,9 +80,9 @@ teams_attr, names = conn.execute("SELECT * FROM TEAM_ATTRIBUTES")
 write_file(os.path.join("files", "Team_Attributes.csv"), teams_attr, names)
 
 
-games, names = conn.execute("SELECT T1.team_long_name as home_team_name, T2.team_long_name as away_team_name,  M.home_team_goal, M.away_team_goal, L.name as league_name From League AS L join Match as M ON L.id =  M.league_id join Team as T1 ON M.home_team_api_id = T1.team_api_id Join Team as T2 On M.away_team_api_id = T2.team_api_id where M.league_id = 17642 ;")
+games, names = conn.execute("SELECT T1.team_long_name as home_team_name, T2.team_long_name as away_team_name,  M.home_team_goal, M.away_team_goal, L.name as league_name From League AS L join Match as M ON L.id =  M.league_id join Team as T1 ON M.home_team_api_id = T1.team_api_id Join Team as T2 On M.away_team_api_id = T2.team_api_id;")
 
-g = [randint(0, len(games)) for _ in range(5)]
+g = [x for x in range(0, len(games))]
 write_file(os.path.join("files", "Games.csv"), [games[g1] for g1 in g], names)
 
 
