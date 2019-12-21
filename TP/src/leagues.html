@@ -62,8 +62,8 @@
             <div class = "attr">
                 <div class = "row">
                     <div class = "col-md-2"></div>
-                    <div class="col-md-6 data" ></div>
-                    <div class = "col-md-4 "></div>
+                    <div class="col-md-8 data" ></div>
+                    <div class = "col-md-2 "></div>
                     
                 </div>
             </div>
@@ -76,11 +76,15 @@
         <div class = "container">
             <div class = "attr">
                 <div class = "row">
-                    <div class = "col-md-2"></div>
-                    <div class="col-md-8 data2" ></div>
-                    <div class = "col-md-2 "></div>
+                    <div class = "col-md-3"></div>
+                    <div class="col-md-6 data2" ></div>
+                    <div class = "col-md-3 "></div>
                     
                 </div>
+            </div>
+
+            <div class = "mytable">    
+
             </div>
         </div>
     </div>
@@ -97,10 +101,36 @@
                 .text(attr_name + "   :   " + attr_value);
         }
 
+        function create_table(x, rect){
+            d3.select(".mytable").html("");
+            d3.select(".mytable")
+                .append("table")
+                .attr("class", "table")
+                .append("tbody");
+            console.log(x);
+            
+            for (let i = 0; i < x.length; i++){
+                if (rect.getAttribute("name") == "miedfield" && x[i].name.substring(0, 5) == "build" || rect.getAttribute("name") == "defence" && x[i].name.substring(0, 7) == "defence" || rect.getAttribute("name") == "attack" && x[i].name.substring(0, 6) == "chance"){
+                    d3.select("tbody")
+                        .append("tr")
+                        .attr("class", "class" + i)
+                        .append("td")
+                        .text(x[i].name);
+                    d3.select(".class" + i)
+                        .append("td")
+                        .append("strong")
+                        .text(x[i].attr);
+                    
+                }
+            }         
+        }
+
         function delete_all(){
             d3.select(".title").html("");
+            d3.select(".title2").html("");
             d3.select(".lista").html("");
             d3.select(".data").html("");
+            d3.select(".data2").html("");
             d3.select(".card").remove();
         }
 
@@ -109,7 +139,7 @@
             d3.select(".lista").html("");
             d3.select(".data2").html("");
             d3.select(".card").remove();
-            
+            d3.select(".mytable").html("");
         }
 
         function isNumeric(num){
@@ -194,7 +224,7 @@
                         .data(data)
                         .enter().append("rect")
                         .attr("name", d => d.name)
-                        .style("fill", "steelblue")
+                        .style("fill", "red")
                         .attr("x", function(d) { return x2(d.name); })
                         .attr("width", x2.rangeBand())
                         .attr("y", function(d) { 
@@ -202,7 +232,7 @@
                             return y2(d.attr / d.attr_len); })
                         .attr("height", function(d) { return height - y2(d.attr / d.attr_len); });
 
-                    break;
+                    return lista[i].def;
                 }
             }
         }
@@ -331,7 +361,6 @@
 
         d3.select(".submit")
             .on("click", function(){
-
                 delete_all()
                 var league;
                 var league_id;
@@ -408,7 +437,11 @@
                 build_chart();
 
                 d3.selectAll("rect").on("click", function(){
-                        build_chart_team(this);
+                        var x = build_chart_team(this);
+                        d3.selectAll("rect").on("click", function(){
+                            create_table(x, this);
+
+                        })
                     })
                 
             })
