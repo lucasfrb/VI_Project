@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8"> 
+    
+    
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    <style>
+        a{
+            cursor : pointer;
+        }
+
+        .axis {
+            font: 10px sans-serif;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+       
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Football</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="../src/home.html">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../src/players.html">Players</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link " href="../src/teams.html">Teams</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="../src/leagues.html">Leagues</a>
+            </li>
+            </ul>
+            
+            <input class="form-control mr-sm-2 input" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0 submit" >Search</button>
+            </form>
+        </div>
+    </nav>
+        
+    <div class = "title px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center"></div>
+
+        <div class = "container">
+
+            <div class = "attr">
+                <div class = "row">
+                    <div class = "col-md-2"></div>
+                    <div class="col-md-6 data" ></div>
+                    <div class = "col-md-4 "></div>
+                    
+                </div>
+            </div>
+
+            
+            <div class = "mytable">
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let index = 0;
+        let lista = [];
+        let dicionario = {};
+            
+        function add_rows(classname, attr_name, attr_value){
+            d3.select("." + classname)
+                .append("li")
+                .attr("class", "list-group-item")
+                .text(attr_name + "   :   " + attr_value);
+        }
+
+        function delete_all(){
+            d3.select(".title").html("");
+            d3.select(".lista").html("");
+            d3.select(".data").html("");
+            d3.select(".card").remove();
+        }
+
+        function isNumeric(num){
+            return !isNaN(num)
+        }
+
+        function build_chart(){
+            var margin = {top: 15, right: 20, bottom: 70, left: 20},
+            width = 800 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+            var y = d3.scale.linear().range([height, 0]);
+
+            
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                
+            
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .ticks(10);
+
+            var svg = d3.select(".data").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", 
+                    "translate(" + margin.left + "," + margin.top + ")");
+                
+            x.domain(lista.map(function(d) { 
+                return d.equipa; 
+            }));
+            y.domain([0, d3.max(lista, function(d) { 
+                var soma = 0;
+                var count = 0;
+                d.def.map(function(x){
+                    if (isNumeric(x.attr)){
+                        soma += parseInt(x.attr);
+                        count++;
+                    }
+                });
+
+                return (soma/count) + 10; })]);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", "-.55em")
+                .attr("transform", "rotate(-90)" );
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "start")
+                .text("Score");
+
+            svg.selectAll("bar")
+                .data(lista)
+                .enter().append("rect")
+                //.attr("name", d => d.name)
+                .style("fill", "steelblue")
+                .attr("x", function(d) { return x(d.equipa); })
+                .attr("width", x.rangeBand())
+                .attr("y", function(d) { 
+                    var soma = 0;
+                    var count = 0;
+                    d.def.map(function(x){
+                        if (isNumeric(x.attr)){
+                            soma += parseInt(x.attr);
+                            count++;
+                        }
+                    });
+                    return y(soma/count); 
+                })
+                .attr("height", function(d) { 
+                    var soma = 0;
+                    var count = 0;
+                    d.def.map(function(x){
+                        if (isNumeric(x.attr)){
+                            soma += parseInt(x.attr);
+                            count++;
+                        }
+                    });
+                    return height - y(soma/count); });
+
+            
+        }
+
+        d3.select(".submit")
+            .on("click", function(){
+
+                delete_all()
+                var league;
+                var league_id;
+                //var Attr;
+                //console.log(d3.select(".input").node().value);
+                d3.csv("../files/Leagues.csv", function(leagues) {
+                    //console.log(d3.select(".input").node().value);
+                    for(let i = 0; i < leagues.length; i++){
+                        if (leagues[i].name.trim() == d3.select(".input").node().value.trim()){
+                            league_id = leagues[i].id;
+                            league = leagues[i];
+                        }
+                    }
+                
+                
+                    d3.csv("../files/Games.csv", function(games) {
+                        var listTeams = [];
+                        var listTeamsIds = []
+                        //console.log(league.name)
+                        //&& players[i].date.split("-")[0].trim() == "2015"
+                        for(let i = 0; i < games.length; i++){
+                            if (games[i].league_name == league.name){
+                                if (listTeams.indexOf(games[i].home_team_name) <= -1){
+                                    listTeams.push(games[i].home_team_name);
+                                }
+                                else if (listTeams.indexOf(games[i].away_team_name) <= -1){
+                                    listTeams.push(games[i].away_team_name);
+                                }
+                                
+                            }
+                        }
+                        
+                        d3.select(".title")
+                            .append("h6")
+                                .attr("class", "display-4")
+                                .text(league.name);
+                        
+                        d3.csv("../files/Teams.csv", function(teams){
+                            
+                            for(let i = 0; i < teams.length; i++){
+                                if (listTeams.indexOf(teams[i].team_long_name) > -1){
+                                    listTeamsIds.push(teams[i].team_api_id)
+                                }
+                            }
+                        })
+
+                        d3.csv("../files/Team_Attributes.csv", function(teamsAttr){
+                            listDataidc = ["id", "team_fifa_api_id", "team_api_id", "date" ]
+                            var listaAttr = []
+                            for (let i = 0, count=0; i < teamsAttr.length; i++){
+
+                                if (listTeamsIds.indexOf(teamsAttr[i].team_api_id) > -1){
+                                    for (let key in teamsAttr[i]){
+                                        if(teamsAttr[i].hasOwnProperty(key)){
+                                            if (listDataidc.indexOf(key) <= -1){
+                                                listaAttr.push({name :`${key}`, attr : `${teamsAttr[i][key]}`});
+                                            }
+                                        }
+                                    }
+                                    if (count < listTeams.length){
+                                        lista.push({"equipa": listTeams[count], "def": listaAttr})
+                                        count++;
+                                    }
+                                    listaAttr = [];
+                                }
+                                
+                            }
+
+                        })
+                    })
+                    
+                })
+                console.log(lista)
+                build_chart();
+                
+                    /**for (let key in teamAttr){
+                        if(teamAttr.hasOwnProperty(key)){
+                            if (key != "id" && key != "team_fifa_api_id" && key != "team_api_id" && key != "date" ){
+                                lista.push({name : `${key}`, attr : `${teamAttr[key]}`});
+                                
+                            }
+                        }
+                    }
+                    build_chart();
+                    d3.selectAll("rect").on("click", function(){
+                        create_table(teamAttr, this);
+                    })**/
+
+
+            })
+
+    </script>
+
+
+</body>
+
+
+
+</html>
