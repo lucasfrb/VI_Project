@@ -69,8 +69,18 @@
             </div>
 
             
-            <div class = "mytable">
-                
+        </div>
+    </div>
+
+    <div class = "title2 px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center"></div>
+        <div class = "container">
+            <div class = "attr">
+                <div class = "row">
+                    <div class = "col-md-2"></div>
+                    <div class="col-md-8 data2" ></div>
+                    <div class = "col-md-2 "></div>
+                    
+                </div>
             </div>
         </div>
     </div>
@@ -94,9 +104,136 @@
             d3.select(".card").remove();
         }
 
+        function delete_team(){
+            d3.select(".title2").html("");
+            d3.select(".lista").html("");
+            d3.select(".data2").html("");
+            d3.select(".card").remove();
+            
+        }
+
         function isNumeric(num){
             return !isNaN(num)
         }
+
+        function build_chart_team(rect){
+            delete_team();
+            d3.select(".title2")
+                            .append("h5")
+                                .attr("class", "display-4")
+                                .text(rect.getAttribute("equipa"));
+            let data = [{name : "defence" , attr : 0, attr_len : 0}, {name : "miedfield" , attr :  0, attr_len : 0}  ,{name : "attack" , attr :  0, attr_len : 0}];
+            for(let i = 0; i < lista.length; i++){
+                if (lista[i].equipa == rect.getAttribute("equipa")){
+                    console.log(lista[i].def)
+                    for(let j = 0; j < lista[i].def.length; j++){
+                        if (lista[i].def[j].name.substring(0, 5) == "build" && isNumeric(lista[i].def[j].attr)){
+                            data[1].attr += parseInt(lista[i].def[j].attr);
+                            data[1].attr_len++;
+                        }
+                        else if (lista[i].def[j].name.substring(0, 6) == "chance" && isNumeric(lista[i].def[j].attr)){
+                            data[2].attr += parseInt(lista[i].def[j].attr);
+                            data[2].attr_len++;
+                        }
+                        else if(lista[i].def[j].name.substring(0, 7) == "defence" && isNumeric(lista[i].def[j].attr)){
+                            data[0].attr += parseInt(lista[i].def[j].attr);
+                            data[0].attr_len++;
+                        }
+                    }
+                    console.log(data);
+                    var margin2 = {top: 20, right: 20, bottom: 70, left: 100},
+                    width = 400 - margin2.left - margin2.right,
+                    height = 200 - margin2.top - margin2.bottom;
+                    
+                    var x2 = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+                    var y2 = d3.scale.linear().range([height, 0]);
+
+                    
+                    var xAxis2 = d3.svg.axis()
+                        .scale(x2)
+                        .orient("bottom")
+                        
+                    
+                    var yAxis2 = d3.svg.axis()
+                        .scale(y2)
+                        .orient("left")
+                        .ticks(10);
+
+                    var svg2 = d3.select(".data2").append("svg")
+                        .attr("width", width + margin2.left + margin2.right)
+                        .attr("height", height + margin2.top + margin2.bottom)
+                    .append("g")
+                        .attr("transform", 
+                            "translate(" + margin2.left + "," + margin2.top + ")");     
+                        
+                    x2.domain(data.map(function(d) { return d.name; }));
+                    y2.domain([0, d3.max(data, function(d) {return (d.attr / d.attr_len) + 10; })]);
+                    
+                    svg2.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(xAxis2)
+                        .selectAll("text")
+                        .style("text-anchor", "end")
+                        .attr("dx", "-.8em")
+                        .attr("dy", "-.55em")
+                        .attr("transform", "rotate(-90)" );
+
+                    svg2.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis2)
+                        .append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 6)
+                        .attr("dy", ".71em")
+                        .style("text-anchor", "start")
+                        .text("Score");
+
+                    svg2.selectAll("bar")
+                        .data(data)
+                        .enter().append("rect")
+                        .attr("name", d => d.name)
+                        .style("fill", "steelblue")
+                        .attr("x", function(d) { return x2(d.name); })
+                        .attr("width", x2.rangeBand())
+                        .attr("y", function(d) { 
+                            console.log(y2(d.attr/d.attr_len));
+                            return y2(d.attr / d.attr_len); })
+                        .attr("height", function(d) { return height - y2(d.attr / d.attr_len); });
+
+                    break;
+                }
+            }
+        }
+
+        /**function create_table(teamAttr, rect){
+            d3.select(".mytable").html("");
+            d3.select(".mytable")
+                .append("table")
+                .attr("class", "table")
+                .append("tbody");
+
+            let data = [{name : "defence" , attr : 0, attr_len : 0}, {name : "miedfield" , attr :  0, attr_len : 0}  ,{name : "attack" , attr :  0, attr_len : 0}];
+            
+            console.log(lista);
+            for (let i = 0; i < lista.length; i++){
+                if (rect.getAttribute("name") == "miedfield" && lista[i].name.substring(0, 5) == "build" || rect.getAttribute("name") == "defence" && lista[i].name.substring(0, 7) == "defence" || rect.getAttribute("name") == "attack" && lista[i].name.substring(0, 6) == "chance"){
+                    d3.select("tbody")
+                        .append("tr")
+                        .attr("class", "class" + i)
+                        .append("td")
+                        .text(lista[i].name);
+                    d3.select(".class" + i)
+                        .append("td")
+                        .append("strong")
+                        .text(lista[i].attr);
+                    
+                }
+            }          
+
+            
+        }*/
 
         function build_chart(){
             var margin = {top: 15, right: 20, bottom: 70, left: 20},
@@ -163,7 +300,7 @@
             svg.selectAll("bar")
                 .data(lista)
                 .enter().append("rect")
-                //.attr("name", d => d.name)
+                .attr("equipa", d => d.equipa)
                 .style("fill", "steelblue")
                 .attr("x", function(d) { return x(d.equipa); })
                 .attr("width", x.rangeBand())
@@ -267,24 +404,15 @@
                     })
                     
                 })
-                console.log(lista)
+                console.log(lista);
                 build_chart();
+
+                d3.selectAll("rect").on("click", function(){
+                        build_chart_team(this);
+                    })
                 
-                    /**for (let key in teamAttr){
-                        if(teamAttr.hasOwnProperty(key)){
-                            if (key != "id" && key != "team_fifa_api_id" && key != "team_api_id" && key != "date" ){
-                                lista.push({name : `${key}`, attr : `${teamAttr[key]}`});
-                                
-                            }
-                        }
-                    }
-                    build_chart();
-                    d3.selectAll("rect").on("click", function(){
-                        create_table(teamAttr, this);
-                    })**/
-
-
             })
+
 
     </script>
 
