@@ -89,7 +89,9 @@
         </div>
     </div>
 
+
     <script>
+
         let index = 0;
         let lista = [];
         let dicionario = {};
@@ -107,7 +109,7 @@
                 .append("table")
                 .attr("class", "table")
                 .append("tbody");
-            console.log(x);
+            
             
             for (let i = 0; i < x.length; i++){
                 if (rect.getAttribute("name") == "miedfield" && x[i].name.substring(0, 5) == "build" || rect.getAttribute("name") == "defence" && x[i].name.substring(0, 7) == "defence" || rect.getAttribute("name") == "attack" && x[i].name.substring(0, 6) == "chance"){
@@ -155,7 +157,7 @@
             let data = [{name : "defence" , attr : 0, attr_len : 0}, {name : "miedfield" , attr :  0, attr_len : 0}  ,{name : "attack" , attr :  0, attr_len : 0}];
             for(let i = 0; i < lista.length; i++){
                 if (lista[i].equipa == rect.getAttribute("equipa")){
-                    console.log(lista[i].def)
+                    
                     for(let j = 0; j < lista[i].def.length; j++){
                         if (lista[i].def[j].name.substring(0, 5) == "build" && isNumeric(lista[i].def[j].attr)){
                             data[1].attr += parseInt(lista[i].def[j].attr);
@@ -170,7 +172,7 @@
                             data[0].attr_len++;
                         }
                     }
-                    console.log(data);
+                    
                     var margin2 = {top: 20, right: 20, bottom: 70, left: 100},
                     width = 400 - margin2.left - margin2.right,
                     height = 200 - margin2.top - margin2.bottom;
@@ -228,7 +230,7 @@
                         .attr("x", function(d) { return x2(d.name); })
                         .attr("width", x2.rangeBand())
                         .attr("y", function(d) { 
-                            console.log(y2(d.attr/d.attr_len));
+                            
                             return y2(d.attr / d.attr_len); })
                         .attr("height", function(d) { return height - y2(d.attr / d.attr_len); });
 
@@ -237,34 +239,7 @@
             }
         }
 
-        /**function create_table(teamAttr, rect){
-            d3.select(".mytable").html("");
-            d3.select(".mytable")
-                .append("table")
-                .attr("class", "table")
-                .append("tbody");
-
-            let data = [{name : "defence" , attr : 0, attr_len : 0}, {name : "miedfield" , attr :  0, attr_len : 0}  ,{name : "attack" , attr :  0, attr_len : 0}];
-            
-            console.log(lista);
-            for (let i = 0; i < lista.length; i++){
-                if (rect.getAttribute("name") == "miedfield" && lista[i].name.substring(0, 5) == "build" || rect.getAttribute("name") == "defence" && lista[i].name.substring(0, 7) == "defence" || rect.getAttribute("name") == "attack" && lista[i].name.substring(0, 6) == "chance"){
-                    d3.select("tbody")
-                        .append("tr")
-                        .attr("class", "class" + i)
-                        .append("td")
-                        .text(lista[i].name);
-                    d3.select(".class" + i)
-                        .append("td")
-                        .append("strong")
-                        .text(lista[i].attr);
-                    
-                }
-            }          
-
-            
-        }*/
-
+        
         function build_chart(){
             var margin = {top: 15, right: 20, bottom: 70, left: 20},
             width = 800 - margin.left - margin.right,
@@ -374,11 +349,12 @@
                             league = leagues[i];
                         }
                     }
+                })
                 
                 
                     d3.csv("../files/Games.csv", function(games) {
                         var listTeams = [];
-                        var listTeamsIds = []
+                        var listTeamsIds = [];
                         //console.log(league.name)
                         //&& players[i].date.split("-")[0].trim() == "2015"
                         for(let i = 0; i < games.length; i++){
@@ -428,13 +404,13 @@
                                 }
                                 
                             }
+                            build_chart();
 
                         })
                     })
                     
-                })
-                console.log(lista);
-                build_chart();
+                
+                
 
                 d3.selectAll("rect").on("click", function(){
                         var x = build_chart_team(this);
